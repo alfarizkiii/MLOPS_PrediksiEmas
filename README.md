@@ -76,3 +76,19 @@ Jalankan perintah berikut di terminal:
 python src/preprocess.py
 ``` 
 Ekspektasi Output: Sebuah file CSV bersih bernama gold_cleaned.csv akan disimpan di dalam direktori data/processed/. File inilah yang berfungsi sebagai Feature Store dan siap direkayasa fiturnya untuk pelatihan model Machine Learning.
+
+### 4. Pelacakan Versi Data (DVC Tracking)
+Sesuai dengan prinsip MLOps, proyek ini memisahkan antara pelacakan kode (Git) dan pelacakan data fisik (DVC) agar repositori tetap ringan. Setiap kali terdapat data baru dari langkah 2, perbarui "sidik jari" data menggunakan DVC:
+
+```bash
+dvc add data/raw
+dvc diff
+```
+Ekspektasi Output: DVC akan mencatat modifikasi dan memperbarui berkas metadata data/raw.dvc. Perintah dvc diff akan memvalidasi data drift atau silsilah penambahan file baru secara presisi tanpa memuat CSV ke dalam memori Git.
+
+### 5. Penyimpanan Eksternal (MinIO Remote Storage)
+Fisik data CSV dikelola secara independen di luar repositori menggunakan MinIO Object Storage (S3-compatible) yang berjalan di atas container Docker lokal. Untuk menyinkronkan dan mengamankan dataset mentah terbaru ke awan, jalankan:
+
+```bash
+dvc push
+```
