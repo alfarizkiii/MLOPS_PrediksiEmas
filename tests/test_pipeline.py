@@ -6,5 +6,5 @@ def test_directories_exist():
     assert os.path.exists("config"), "Folder config/ tidak ditemukan!"
 
 def test_model_metadata_exists():
-    """Memastikan file konfigurasi metadata sudah dibuat di LK sebelumnya."""
-    assert os.path.exists("config/model_metadata.yaml"), "File metadata hilang!"
+    """Memastikan file konfigurasi metadata sudah dilacak oleh DVC."""
+    assert os.path.exists("config/model_metadata.yaml.dvc"), "File DVC metadata hilang!"
