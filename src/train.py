@@ -75,5 +75,27 @@ def main():
         # MLflow Log Model
         mlflow.sklearn.log_model(rf, "model")
 
+        threshold_rmse = 150.0  # Ambang batas performa yang ditetapkan
+        
+        print(f"\n--- Memulai Evaluasi Otomatis (Threshold RMSE: {threshold_rmse}) ---")
+        if rmse < threshold_rmse:
+            print(f"✅ SUKSES! Model memenuhi standar (RMSE: {rmse:.2f}). Mendaftarkan model...")
+            
+            # 1. Registrasi Model
+            model_name = "Gold_Price_Predictor"
+            run_id = mlflow.active_run().info.run_id
+            result = mlflow.register_model(f"runs:/{run_id}/model", model_name)
+            
+            # 2. Transisi Otomatis ke Staging
+            client = mlflow.tracking.MlflowClient()
+            client.transition_model_version_stage(
+                name=model_name,
+                version=result.version,
+                stage="Staging"
+            )
+            print(f"🚀 Model versi {result.version} otomatis ditransisikan ke status 'Staging'!")
+        else:
+            print(f"❌ GAGAL. Performa model (RMSE: {rmse:.2f}) lebih buruk dari ambang batas.")
+
 if __name__ == "__main__":
     main()
