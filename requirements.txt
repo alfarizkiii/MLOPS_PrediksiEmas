@@ -1,6 +1,9 @@
 fastapi
+yfinance
 uvicorn
 mlflow
 scikit-learn
 pandas
 psycopg2-binary
+prometheus-fastapi-instrumentator
+prometheus-client
