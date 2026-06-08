@@ -1,0 +1,45 @@
+name: Continuous Training (CT) Pipeline
+
+# Mendefinisikan Skenario Pemicu (Instruksi 1)
+on:
+  # Skenario 1: Schedule-based (Setiap hari Minggu jam 00:00 UTC)
+  schedule:
+    - cron: '0 0 * * 0'
+    
+  # Skenario 2: Performance-based (Menerima sinyal Webhook darurat dari Grafana Alerting)
+  repository_dispatch:
+    types: [grafana-alert-retrain]
+    
+  # Tombol manual di tab Actions GitHub untuk pengujian simulasi
+  workflow_dispatch: 
+
+jobs:
+  retrain-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Catatan: Karena MLflow berjalan di local Docker Codespaces saat ini,
+      # kita menggunakan server MLflow lokal di dalam GitHub Actions runner
+      # untuk keperluan simulasi berjalannya skrip komparasi.
+      - name: 🚀 Run Automated Retraining Script
+        env:
+          MLFLOW_TRACKING_URI: ./mlruns
+        run: |
+          python scripts/retrain.py
+
+      - name: 📝 Log Execution Status
+        run: echo "Continuous Training Pipeline berhasil dieksekusi berdasarkan pemicu!"
