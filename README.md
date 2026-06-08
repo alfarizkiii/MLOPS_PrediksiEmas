@@ -6,7 +6,7 @@
 
 **Institusi:** Fakultas Ilmu Komputer (FILKOM), Universitas Brawijaya
 
-# MLOPS_PrediksiEmad : Sistem Prediksi Harga Emas Adaptif
+# MLOPS_PrediksiEmas : Sistem Prediksi Harga Emas Adaptif
 
 Repositori ini berisi fondasi teknis untuk inisiasi proyek pengembangan Sistem Prediksi Harga Emas (XAU/USD) berbasis Machine Learning Operations (MLOps). 
 
