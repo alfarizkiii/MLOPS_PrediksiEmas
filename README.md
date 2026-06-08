@@ -1,3 +1,11 @@
+**Nama:** Muhammad Naufal Al Farizki
+
+**NIM:** 235150207111032
+
+**Program Studi:** Teknik Informatika (Angkatan 2023)
+
+**Institusi:** Fakultas Ilmu Komputer (FILKOM), Universitas Brawijaya
+
 # MLOPS_PrediksiEmad : Sistem Prediksi Harga Emas Adaptif
 
 Repositori ini berisi fondasi teknis untuk inisiasi proyek pengembangan Sistem Prediksi Harga Emas (XAU/USD) berbasis Machine Learning Operations (MLOps). 
@@ -5,41 +13,24 @@ Repositori ini berisi fondasi teknis untuk inisiasi proyek pengembangan Sistem P
 ## Tujuan Proyek
 Proyek ini bertujuan untuk membangun sistem prediksi harga emas *time-series* secara *real-time* menggunakan data dari API `yfinance`. Sistem ini dirancang berorientasi *production* dengan menerapkan strategi *Continual Learning* (CT) untuk mendeteksi dan menangani *Data Drift* (perubahan tren dan volatilitas pasar) agar model tetap relevan.
 
-## Struktur Direktori
-Proyek ini mengadopsi standar konvensi industri **Cookiecutter Data Science** untuk memastikan kerapian dan reproduktibilitas:
+## 📂 Struktur Direktori
+Proyek ini mengadopsi standar konvensi industri **Cookiecutter Data Science** yang diperluas dengan arsitektur MLOps untuk memastikan kerapian dan reproduktibilitas:
 
-* `config/` : Berisi file konfigurasi *environment*, parameter, dan kredensial.
+* `.github/workflows/` : Pipa CI/CD (`automation.yml`) dan *Continuous Training* (`ct_pipeline.yml`).
+* `config/` : Berisi fail konfigurasi *environment*, parameter, dan kredensial (diabaikan git).
 * `data/` : Penyimpanan data dari `yfinance` (`raw/`, `interim/`, `processed/`, `external/`).
-* `models/` : Tempat menyimpan artefak model ML yang telah dilatih.
-* `notebooks/` : Jupyter notebooks untuk eksplorasi data (EDA) dan eksperimen awal.
-* `reports/` : Menyimpan laporan hasil evaluasi dan visualisasi (`figures/`).
-* `src/` : *Source code* utama (terbagi menjadi modul `data/`, `features/`, `models/`, dan `visualization/`).
-* `requirements.txt` : Daftar dependensi Python yang dibutuhkan proyek ini.
+* `docker/` : Konfigurasi *container* (`api.Dockerfile`, `mlflow.Dockerfile`).
+* `models/` : Tempat menyimpan artefak model ML (*tracking* via MLflow).
+* `notebooks/` : Jupyter notebooks untuk eksplorasi data (EDA).
+* `reports/` : Laporan hasil evaluasi dan visualisasi (`figures/`).
+* `scripts/` : Skrip otomatisasi tingkat lanjut (termasuk `retrain.py` untuk CT).
+* `src/` : *Source code* utama (ETL data, *features*, dan `api/` untuk mikroservis).
+* `docker-compose.yaml` : Orkestrasi kluster infrastruktur (6 layanan terintegrasi).
+* `prometheus.yml` : Konfigurasi *scraping* metrik pemantauan.
 
-## Cara Menjalankan Lingkungan (GitHub Codespaces)
-Agar proyek bersifat *reproducible* dan bebas dari masalah dependensi (tanpa galat), proyek ini menggunakan lingkungan virtual GitHub Codespaces yang sudah dikonfigurasi melalui `.devcontainer`.
-# MLOps - GoldGuard: Sistem Prediksi Harga Emas Adaptif
+## 💻 Persiapan Lingkungan (GitHub Codespaces)
+Agar proyek bersifat *reproducible* dan bebas dari masalah dependensi, proyek ini menggunakan lingkungan virtual GitHub Codespaces yang dikonfigurasi melalui `.devcontainer`.
 
-Repositori ini berisi fondasi teknis untuk inisiasi proyek pengembangan Sistem Prediksi Harga Emas (XAU/USD) berbasis Machine Learning Operations (MLOps). 
-
-## Tujuan Proyek
-Proyek ini bertujuan untuk membangun sistem prediksi harga emas *time-series* secara *real-time* menggunakan data dari API `yfinance`. Sistem ini dirancang berorientasi *production* dengan menerapkan strategi *Continual Learning* (CT) untuk mendeteksi dan menangani *Data Drift* (perubahan tren dan volatilitas pasar) agar model tetap relevan.
-
-## Struktur Direktori
-Proyek ini mengadopsi standar konvensi industri **Cookiecutter Data Science** untuk memastikan kerapian dan reproduktibilitas:
-
-* `config/` : Berisi file konfigurasi *environment*, parameter, dan kredensial (diabaikan git).
-* `data/` : Penyimpanan data dari `yfinance` (`raw/`, `interim/`, `processed/`, `external/`).
-* `models/` : Tempat menyimpan artefak model ML yang telah dilatih.
-* `notebooks/` : Jupyter notebooks untuk eksplorasi data (EDA) dan eksperimen awal.
-* `reports/` : Menyimpan laporan hasil evaluasi dan visualisasi (`figures/`).
-* `src/` : *Source code* utama (terbagi menjadi modul `data/`, `features/`, `models/`, dan `visualization/`).
-* `requirements.txt` : Daftar dependensi Python yang dibutuhkan proyek ini.
-
-## Cara Menjalankan Lingkungan (GitHub Codespaces)
-Agar proyek bersifat *reproducible* dan bebas dari masalah dependensi (tanpa galat), proyek ini menggunakan lingkungan virtual GitHub Codespaces yang sudah dikonfigurasi melalui `.devcontainer`.
-
-Langkah-langkah menjalankan sistem:
 1. Buka halaman utama repositori ini di GitHub.
 2. Klik tombol hijau **`<> Code`** di pojok kanan atas.
 3. Pilih tab **`Codespaces`**.
@@ -92,3 +83,66 @@ Fisik data CSV dikelola secara independen di luar repositori menggunakan MinIO O
 ```bash
 dvc push
 ```
+
+## 🐳 Infrastruktur Layanan Produksi (Docker Compose)
+
+Seluruh arsitektur inferensi dan observabilitas dibungkus menggunakan Docker pada jaringan internal terisolasi. Jalankan perintah ini untuk membangun dan menyalakan 6 kontainer sekaligus (PostgreSQL, MLflow, FastAPI, Prometheus, cAdvisor, Grafana):
+
+```bash
+docker-compose up -d --build
+
+```
+
+Setelah seluruh kontainer berstatus `Running`, akses layanan melalui *browser*:
+
+* **FastAPI Swagger UI:** `http://localhost:8000/docs`
+* **MLflow Tracking Server:** `http://localhost:5000`
+* **Grafana Dashboard:** `http://localhost:3000` *(Login default: `admin` / `admin`)*
+
+---
+
+## 🎯 Penggunaan API Prediksi (Inferensi)
+
+Mikroservis FastAPI dilengkapi mekanisme *Lazy Loading* untuk menghemat memori. API menerima *request* berupa data fitur emas (Open, High, Low, Volume) untuk menebak Harga Penutupan (Close).
+
+**Opsi 1: Menggunakan cURL Manual**
+
+```bash
+curl -X POST "http://localhost:8000/predict" \
+-H "Content-Type: application/json" \
+-d '{"Open": 2320.50, "High": 2345.00, "Low": 2310.20, "Volume": 150000}'
+
+```
+
+**Opsi 2: Simulator Live Data Otomatis (Disarankan)**
+Skrip ini terhubung langsung ke Yahoo Finance, mengekstrak harga hari ini, mengirimkannya ke API produksi, dan menghitung nilai selisih (*error*) secara *real-time*:
+
+```bash
+python src/api/cek_emas.py
+
+```
+
+---
+
+## 📊 Observabilitas & Pemantauan (Monitoring)
+
+Sistem memantau metrik perangkat keras (CPU/RAM via cAdvisor) dan perangkat lunak secara *real-time*. Pada Grafana Alerting, ditetapkan ambang batas (*threshold*) keamanan untuk metrik khusus `gold_prediction_score`:
+
+* **Batas Atas (Bubble):** $3500.00
+* **Batas Bawah (Crash):** $1200.00
+
+Jika prediksi melampaui batas tersebut selama lebih dari 1 menit akibat lonjakan pasar, sistem otomatis berubah status menjadi `Firing` dan memicu mekanisme perlindungan CT via *Webhook*.
+
+---
+
+## 🔄 Continuous Training (CT) & Evaluasi Komparatif
+
+Model dilatih ulang dan divalidasi secara otomatis tanpa intervensi manusia menggunakan **GitHub Actions** (`ct_pipeline.yml`) yang dipicu oleh:
+
+1. **Jadwal Rutin (Cron):** Berjalan otomatis setiap hari Minggu pukul 00:00 UTC.
+2. **Alarm Darurat:** Dipicu seketika oleh *Repository Dispatch Webhook* dari Grafana.
+
+**Gerbang Validasi MLflow (Closed-Loop):**
+Ketika skrip `scripts/retrain.py` berjalan, model baru akan dibandingkan secara matematis dengan model *Production* lama. Model baru hanya akan dipromosikan (menggantikan model lama tanpa *downtime*) **JIKA DAN HANYA JIKA** terbukti memiliki nilai *Root Mean Squared Error* (RMSE) yang lebih kecil/lebih akurat. Jika tidak, model baru akan diisolasi.
+
+---
